@@ -1,0 +1,4 @@
+# Dependências de execução (versões validadas em 2026-11-07)
+PySide6-Essentials==6.12.0
+instaloader==4.16
+requests==2.34.2

@@ -99,6 +99,10 @@ QToolTip {{ background: {t.surface3}; color: {t.text}; border: 1px solid {t.bord
 QLabel {{ background: transparent; }}
 QLabel[role="appTitle"] {{ font-size: 15pt; font-weight: 700; }}
 QLabel[role="appSubtitle"] {{ color: {t.text_muted}; font-size: 9.5pt; }}
+QLabel[role="version"] {{
+    color: {t.accent}; background: {t.accent_soft}; border-radius: 8px;
+    padding: 1px 7px; font-size: 8.5pt; font-weight: 600;
+}}
 QLabel[role="section"] {{ color: {t.text_muted}; font-size: 9pt; font-weight: 600; letter-spacing: 0.4px; }}
 QLabel[role="title"] {{ font-size: 13pt; font-weight: 600; }}
 QLabel[role="heading"] {{ font-size: 11pt; font-weight: 600; }}

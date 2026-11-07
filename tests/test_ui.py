@@ -77,6 +77,13 @@ def routes_for(post, *, broken_thumb=None):
     return r
 
 
+def test_header_shows_app_version(window_factory):
+    from pixora import __version__
+
+    win, _, _ = window_factory({})
+    assert win.version_label.text() == f"v{__version__}"
+
+
 def test_invalid_link_shows_inline_error_without_network(window_factory):
     win, provider, _ = window_factory({})
     win.url_input.setText("https://example.com/p/abc123")

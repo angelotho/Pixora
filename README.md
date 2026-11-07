@@ -29,7 +29,7 @@ Atalhos: `Enter` analisa · `Esc` cancela · `Ctrl+L` foca o link · `Ctrl+D` ba
 
 ## Instalação e uso (usuário final)
 
-1. Baixe `Pixora-1.0.0-windows-x64.zip`, extraia e execute `Pixora\Pixora.exe`. Não é preciso instalar Python.
+1. Baixe `Pixora-1.0.1-windows-x64.zip`, extraia e execute `Pixora\Pixora.exe`. Não é preciso instalar Python.
 2. **Aviso do Windows SmartScreen:** o executável **não possui assinatura digital** (certificados de assinatura são pagos). Na primeira execução o Windows pode mostrar "O Windows protegeu o computador". Clique em **Mais informações → Executar assim mesmo** se confiar na origem do arquivo. Esse aviso é esperado e não foi ocultado.
 
 Onde ficam os dados (fora da pasta do programa):
@@ -64,7 +64,7 @@ py -3.12 -m venv .venv
 $env:PIXORA_NETWORK_TESTS = "1"; .\.venv\Scripts\python.exe -m pytest -m network
 
 # 5. Gerar o executável (roda os testes, gera ícone, empacota, testa a inicialização e cria o ZIP)
-.\build.ps1             # dist\Pixora\Pixora.exe + dist\Pixora-1.0.0-windows-x64.zip
+.\build.ps1             # dist\Pixora\Pixora.exe + dist\Pixora-1.0.1-windows-x64.zip
 .\build.ps1 -OneFile    # dist\Pixora.exe único (inicia mais devagar; mais alertas de antivírus)
 ```
 

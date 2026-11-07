@@ -47,7 +47,7 @@ Remove-Item Env:\PIXORA_SMOKE_TEST
 if ($proc.ExitCode -ne 0) { throw "O executável não iniciou corretamente (código $($proc.ExitCode))." }
 
 if (-not $OneFile) {
-    $zip = "dist\Pixora-1.0.0-windows-x64.zip"
+    $zip = "dist\Pixora-1.0.1-windows-x64.zip"
     if (Test-Path $zip) { Remove-Item $zip }
     Compress-Archive -Path "dist\Pixora" -DestinationPath $zip
     Write-Host "Pacote: $zip" -ForegroundColor Green

@@ -62,10 +62,6 @@ def test_invalid_urls_are_rejected(raw):
 
 
 @pytest.mark.parametrize("raw, fragment", [
-    ("https://www.instagram.com/reel/DeTUk4sDSp-/", "Reel"),
-    ("https://www.instagram.com/reels/DeTUk4sDSp-/", "Reel"),
-    ("https://www.instagram.com/tv/DeTUk4sDSp-/", "vídeo"),
-    ("https://www.instagram.com/nasa/reel/DeTUk4sDSp-/", "Reel"),
     ("https://www.instagram.com/stories/nasa/123456789/", "Stories"),
     ("https://www.instagram.com/nasa/", "perfil"),
     ("https://www.instagram.com/explore/tags/space/", "explorar"),
@@ -80,4 +76,16 @@ def test_is_probable_instagram_url_never_raises():
     assert is_probable_instagram_url("https://www.instagram.com/p/DeAYvsnn4la/")
     assert not is_probable_instagram_url("https://example.com")
     assert not is_probable_instagram_url("")
-    assert not is_probable_instagram_url("https://www.instagram.com/reel/DeTUk4sDSp-/")
+    assert is_probable_instagram_url("https://www.instagram.com/reel/DeTUk4sDSp-/")
+
+
+@pytest.mark.parametrize("raw", [
+    "https://www.instagram.com/reel/DeTUk4sDSp-/",
+    "https://www.instagram.com/reels/DeTUk4sDSp-/",
+    "https://www.instagram.com/tv/DeTUk4sDSp-/",
+    "https://www.instagram.com/nasa/reel/DeTUk4sDSp-/?igsh=abc",
+])
+def test_video_links_are_accepted_and_normalized(raw):
+    parsed = parse_post_url(raw)
+    assert parsed.shortcode == "DeTUk4sDSp-"
+    assert parsed.canonical_url == "https://www.instagram.com/p/DeTUk4sDSp-/"

@@ -44,9 +44,11 @@ def test_real_carousel(service):
     assert [i.position for i in post.images] == sorted(i.position for i in post.images)
 
 
-def test_real_video_is_rejected(service):
-    with pytest.raises(UnsupportedContentError):
-        service.fetch(service.validate(f"https://www.instagram.com/p/{VIDEO}/"))
+def test_real_video_is_downloaded_as_mp4(service, tmp_path):
+    post = service.fetch(service.validate(f"https://www.instagram.com/reel/{VIDEO}/"))
+    assert post.video_count == 1
+    report = service.download(post, post.images, tmp_path, ConflictPolicy.RENAME)
+    assert report.saved and report.saved[0].path.suffix == ".mp4"
 
 
 def test_real_missing_post(service):

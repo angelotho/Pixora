@@ -23,9 +23,10 @@ def test_downloads_selected_items_with_consistent_names(tmp_path):
     routes = {i.full_url: jpeg_response() for i in post.images}
     routes[post.images[1].full_url] = FakeResponse(200, png_bytes(), {"Content-Type": "image/png"})
     dm, _ = manager(routes)
-    report = dm.download(post, post.images, tmp_path)
+    report = dm.download(post, post.images, tmp_path)  # padrão: JPG (o PNG é convertido)
     names = sorted(p.name for p in tmp_path.iterdir())
-    assert names == ["instagram_TESTabc123_01.jpg", "instagram_TESTabc123_02.png", "instagram_TESTabc123_03.jpg"]
+    assert names == ["instagram_TESTabc123_01.jpg", "instagram_TESTabc123_02.jpg", "instagram_TESTabc123_03.jpg"]
+    assert (tmp_path / "instagram_TESTabc123_02.jpg").read_bytes()[:3] == b"\xff\xd8\xff"
     assert len(report.saved) == 3 and not report.failed and not report.cancelled
     assert (tmp_path / "instagram_TESTabc123_01.jpg").read_bytes() == JPEG_BYTES
 

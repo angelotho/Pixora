@@ -53,21 +53,36 @@ def test_carousel_preserves_order_and_uses_small_thumbnails():
     assert all("_1080x1350" in i.full_url for i in post.images)
 
 
-def test_carousel_skips_videos_but_keeps_original_positions():
+def test_carousel_includes_videos_in_original_positions():
     node = {"carousel_media": [image_node("a"), video_node("v"), image_node("b")]}
     post = parse_post_node(node, "MIX")
-    assert [i.position for i in post.images] == [1, 3]
-    assert post.skipped_videos == 1
+    assert [i.position for i in post.images] == [1, 2, 3]
+    assert [i.is_video for i in post.images] == [False, True, False]
+    assert post.images[1].full_url == f"{CDN}v.mp4"
+    assert post.images[1].thumbnail_url.endswith(".jpg?sig=x")   # capa do vídeo como miniatura
+    assert (post.photo_count, post.video_count, post.skipped_videos) == (2, 1, 0)
 
 
-def test_carousel_with_only_videos_is_unsupported():
-    with pytest.raises(UnsupportedContentError):
-        parse_post_node({"carousel_media": [video_node("a"), video_node("b")]}, "VID")
+def test_carousel_with_only_videos_is_supported():
+    post = parse_post_node({"carousel_media": [video_node("a"), video_node("b")]}, "VID")
+    assert post.video_count == 2
 
 
-def test_video_post_is_unsupported():
+def test_video_post_uses_largest_video_version():
+    node = video_node("x")
+    node["video_versions"] = [{"url": f"{CDN}small.mp4", "width": 480, "height": 854},
+                              {"url": f"{CDN}big.mp4", "width": 1080, "height": 1920}]
+    post = parse_post_node(node, "VID")
+    assert post.kind is PostKind.SINGLE and post.images[0].is_video
+    assert post.images[0].full_url == f"{CDN}big.mp4"
+
+
+def test_video_without_url_is_skipped_or_unsupported():
+    bare = {"media_type": 2, **cands("n", 1080, 1920)}
+    post = parse_post_node({"carousel_media": [image_node("a"), bare]}, "MIX")
+    assert post.skipped_videos == 1 and post.image_count == 1
     with pytest.raises(UnsupportedContentError) as exc:
-        parse_post_node(video_node("x"), "VID")
+        parse_post_node(bare, "VID")
     assert "vídeo" in exc.value.user_message
 
 

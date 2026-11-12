@@ -1,4 +1,4 @@
-"""Gerenciamento de downloads das imagens finais."""
+"""Gerenciamento de downloads das mídias finais (imagens em PNG/JPG, vídeos em MP4)."""
 
 from __future__ import annotations
 
@@ -10,12 +10,13 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from .converter import convert_image, needs_conversion
 from .errors import CancelledError, DestinationError, PixoraError
 from .filenames import (
     ConflictPolicy, build_base_name, detect_extension, resolve_target, sniff_image_extension,
 )
-from .http import MediaHttpClient, redact_url
-from .models import DownloadReport, FileResult, ImageItem, PostInfo
+from .http import MAX_IMAGE_BYTES, MAX_VIDEO_BYTES, MediaHttpClient, redact_url
+from .models import VIDEO_EXTENSION, DownloadReport, FileResult, ImageFormat, ImageItem, PostInfo
 
 log = logging.getLogger(__name__)
 
@@ -72,6 +73,7 @@ class DownloadManager:
         *,
         on_progress: ProgressCallback | None = None,
         cancel: threading.Event | None = None,
+        image_format: ImageFormat = ImageFormat.JPG,
     ) -> DownloadReport:
         folder = Path(folder)
         ensure_writable_folder(folder)
@@ -85,7 +87,8 @@ class DownloadManager:
                 break
             base = build_base_name(post.shortcode, item.position, total_positions)
             try:
-                result = self._download_one(item, folder, base, index, count, on_progress, cancel)
+                result = self._download_one(item, folder, base, index, count, on_progress, cancel,
+                                            image_format)
             except CancelledError:
                 report.cancelled = True
                 break
@@ -94,7 +97,7 @@ class DownloadManager:
                 result = FileResult(item=item, error=exc.user_message)
             except Exception as exc:  # noqa: BLE001 — nenhum erro de um arquivo pode derrubar o lote
                 log.exception("Erro inesperado ao baixar %s", redact_url(item.full_url))
-                result = FileResult(item=item, error="Erro inesperado ao salvar a imagem.")
+                result = FileResult(item=item, error="Erro inesperado ao salvar o arquivo.")
             report.results.append(result)
 
         if on_progress:
@@ -104,8 +107,11 @@ class DownloadManager:
     def _download_one(
         self, item: ImageItem, folder: Path, base: str, index: int, count: int,
         on_progress: ProgressCallback | None, cancel: threading.Event | None,
+        image_format: ImageFormat = ImageFormat.JPG,
     ) -> FileResult:
         part_path = folder / f".{base}.pixora-part"
+        conv_path = folder / f".{base}.pixora-conv"
+        max_bytes = MAX_VIDEO_BYTES if item.is_video else MAX_IMAGE_BYTES
         done = 0
         try:
             with self._http.open(item.full_url) as resp:
@@ -122,7 +128,7 @@ class DownloadManager:
 
                 try:
                     with open(part_path, "wb") as fh:
-                        for chunk in self._http.iter_content(resp, cancel, tick):
+                        for chunk in self._http.iter_content(resp, cancel, tick, max_bytes):
                             if len(head) < 32:
                                 head += chunk[: 32 - len(head)]
                             fh.write(chunk)
@@ -136,21 +142,39 @@ class DownloadManager:
                 raise PixoraError("O servidor enviou um arquivo vazio.")
             if total is not None and done < total:
                 raise PixoraError("O download ficou incompleto. Tente novamente.")
-            if sniff_image_extension(head) is None and not (content_type or "").startswith("image/"):
-                raise PixoraError("O arquivo recebido não é uma imagem.")
+            final_path = part_path
+            if item.is_video:
+                if not _looks_like_mp4(head, content_type):
+                    raise PixoraError("O arquivo recebido não é um vídeo MP4.")
+                ext = VIDEO_EXTENSION
+            else:
+                if sniff_image_extension(head) is None and not (content_type or "").startswith("image/"):
+                    raise PixoraError("O arquivo recebido não é uma imagem.")
+                source_ext = detect_extension(head, content_type)
+                ext = image_format.extension
+                if needs_conversion(source_ext, image_format):
+                    convert_image(part_path, conv_path, image_format)
+                    final_path = conv_path
 
-            ext = detect_extension(head, content_type)
             target, skipped = resolve_target(folder, base, ext, self.policy)
             if skipped:
                 return FileResult(item=item, path=target, skipped_existing=True)
             try:
-                os.replace(part_path, target)
+                os.replace(final_path, target)
             except OSError as exc:
                 raise DestinationError(detail=str(exc)) from exc
             log.info("Salvo %s (%d bytes)", target.name, done)
             return FileResult(item=item, path=target)
         finally:
-            try:
-                part_path.unlink(missing_ok=True)
-            except OSError:
-                log.debug("Não foi possível remover arquivo temporário %s", part_path)
+            for tmp in (part_path, conv_path):
+                try:
+                    tmp.unlink(missing_ok=True)
+                except OSError:
+                    log.debug("Não foi possível remover arquivo temporário %s", tmp)
+
+
+def _looks_like_mp4(head: bytes, content_type: str | None) -> bool:
+    """Contêiner ISO-BMFF que não seja imagem (HEIC/AVIF), ou ``Content-Type`` de vídeo."""
+    if len(head) >= 12 and head[4:8] == b"ftyp":
+        return sniff_image_extension(head) is None
+    return (content_type or "").split(";", 1)[0].strip().lower() in ("video/mp4", "video/quicktime")

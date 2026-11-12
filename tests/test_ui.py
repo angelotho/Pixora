@@ -155,7 +155,7 @@ def test_failed_downloads_are_reported(qapp, window_factory):
     wait_until(qapp, lambda: win._post is not None)
     win.start_download()
     wait_until(qapp, lambda: not win._downloading)
-    assert "1 imagem salva" in win.banner._title.text() and "1 com falha" in win.banner._title.text()
+    assert "1 arquivo salvo" in win.banner._title.text() and "1 com falha" in win.banner._title.text()
 
 
 def test_cancel_analysis_discards_late_result(qapp, window_factory):
@@ -177,3 +177,35 @@ def test_theme_switch_does_not_break(qapp, window_factory):
     assert theme.current().name == "light"
     theme.apply_theme(qapp, "dark")
     win._restyle_icons()
+
+
+def test_format_selector_png_converts_and_is_remembered(qapp, window_factory, tmp_path):
+    post = make_post(1, shortcode="FORMATpng01")
+    routes = {post.images[0].full_url: FakeResponse(200, png_bytes(), {"Content-Type": "image/png"})}
+    win, _, _ = window_factory({"FORMATpng01": post}, routes)
+    win.url_input.setText("https://www.instagram.com/p/FORMATpng01/")
+    win.analyze()
+    wait_until(qapp, lambda: win._post is not None)
+    from pixora.core.models import ImageFormat
+    assert win.format_box.isVisible() and win.format_buttons[ImageFormat.PNG].isVisible()
+    assert not win.video_format_label.isVisible()
+    assert win.format_buttons[ImageFormat.JPG].isChecked()     # padrão
+    win.format_buttons[ImageFormat.PNG].click()
+    win.start_download()
+    wait_until(qapp, lambda: not win._downloading)
+    assert [p.name for p in (tmp_path / "out").iterdir()] == ["instagram_FORMATpng01_01.png"]
+    assert win.settings_store.load().image_format == "png"
+
+
+def test_video_only_selection_shows_fixed_mp4(qapp, window_factory):
+    from pixora.core.models import ImageItem, PostInfo, PostKind
+    from conftest import CDN
+    item = ImageItem(position=1, full_url=f"{CDN}clip.mp4", thumbnail_url=f"{CDN}cover.jpg", is_video=True)
+    post = PostInfo("VIDEOpost01", "https://www.instagram.com/p/VIDEOpost01/", PostKind.SINGLE, (item,))
+    win, _, _ = window_factory({"VIDEOpost01": post})
+    win.url_input.setText("https://www.instagram.com/reel/VIDEOpost01/")
+    win.analyze()
+    wait_until(qapp, lambda: win._post is not None)
+    assert win.post_title.text() == "Vídeo" and win.download_btn.text() == "Baixar vídeo"
+    assert win.format_box.isVisible() and win.video_format_label.isVisible()
+    assert not any(b.isVisible() for b in win.format_buttons.values())

@@ -9,8 +9,8 @@ from pathlib import Path
 from PySide6.QtCore import QByteArray, QEvent, Qt, QThreadPool, QTimer, QUrl
 from PySide6.QtGui import QAction, QCloseEvent, QDesktopServices, QGuiApplication, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
-    QApplication, QBoxLayout, QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QMainWindow,
-    QMessageBox, QProgressBar, QScrollArea, QSizePolicy, QStackedWidget, QVBoxLayout, QWidget,
+    QApplication, QBoxLayout, QButtonGroup, QFileDialog, QFrame, QHBoxLayout, QLabel, QLineEdit, QMainWindow,
+    QMessageBox, QProgressBar, QPushButton, QScrollArea, QSizePolicy, QStackedWidget, QVBoxLayout, QWidget,
 )
 
 from pixora import __app_name__, __version__
@@ -19,7 +19,7 @@ from pixora.core.errors import (
     AccessRestrictedError, NetworkError, PixoraError, PostUnavailableError, ProviderBrokenError,
     RateLimitedError, UnsupportedContentError,
 )
-from pixora.core.models import DownloadReport, ParsedPostUrl, PostInfo, PostKind
+from pixora.core.models import DownloadReport, ImageFormat, ParsedPostUrl, PostInfo, PostKind
 from pixora.core.selection import Selection
 from pixora.core.service import PixoraService
 from pixora.core.url_validator import is_probable_instagram_url
@@ -52,6 +52,15 @@ def _error_visual(exc: PixoraError) -> tuple[str, str]:
     if isinstance(exc, (PostUnavailableError, ProviderBrokenError)):
         return "alert", "danger"
     return "alert", "danger"
+
+
+def _count_label(photos: int, videos: int) -> str:
+    parts = []
+    if photos:
+        parts.append(f"{photos} {'imagem' if photos == 1 else 'imagens'}")
+    if videos:
+        parts.append(f"{videos} {'vídeo' if videos == 1 else 'vídeos'}")
+    return " e ".join(parts) or "0 itens"
 
 
 class MainWindow(QMainWindow):
@@ -165,7 +174,7 @@ class MainWindow(QMainWindow):
         self.url_row.addWidget(self.url_input, 1)
         self.url_row.addLayout(btns)
         uc.addLayout(self.url_row)
-        self.url_hint = label("Funciona com publicações públicas de imagem única e carrosséis.", "faint")
+        self.url_hint = label("Funciona com publicações públicas: imagens, vídeos, Reels e carrosséis.", "faint")
         uc.addWidget(self.url_hint)
         outer.addWidget(url_card)
 
@@ -267,11 +276,37 @@ class MainWindow(QMainWindow):
         self.cancel_btn = make_button("Cancelar", variant="ghost", icon_name="x")
         self.cancel_btn.clicked.connect(self.cancel_download)
         self.cancel_btn.hide()
+        # Formato de saída: PNG/JPG para imagens; vídeos são sempre MP4.
+        self.format_box = QFrame()
+        self.format_box.setObjectName("Segmented")
+        self.format_box.setToolTip("Formato das imagens. Vídeos são sempre salvos em MP4.")
+        seg = QHBoxLayout(self.format_box)
+        seg.setContentsMargins(4, 4, 4, 4)
+        seg.setSpacing(2)
+        self.format_group = QButtonGroup(self)
+        self.format_group.setExclusive(True)
+        self.format_buttons: dict[ImageFormat, QPushButton] = {}
+        for fmt in ImageFormat:
+            b = QPushButton(fmt.label)
+            b.setCheckable(True)
+            b.setCursor(Qt.CursorShape.PointingHandCursor)
+            b.setAccessibleName(f"Salvar imagens em {fmt.label}")
+            b.setChecked(fmt.value == self.settings.image_format)
+            self.format_group.addButton(b)
+            self.format_buttons[fmt] = b
+            seg.addWidget(b)
+        self.format_group.buttonToggled.connect(lambda _b, on: on and self._on_format_changed(0))
+        self.video_format_label = label("MP4", "segLocked")
+        self.video_format_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.video_format_label.setToolTip("Vídeos são salvos em MP4.")
+        seg.addWidget(self.video_format_label)
+        self.format_box.hide()
         self.download_btn = make_button("Baixar", variant="primary", icon_name="download")
         self.download_btn.setMinimumWidth(190)
         self.download_btn.clicked.connect(self.start_download)
         actions.addWidget(self.progress_box)
         actions.addWidget(self.cancel_btn)
+        actions.addWidget(self.format_box)
         actions.addWidget(self.download_btn)
         self.footer_row.addLayout(actions)
         outer.addWidget(footer)
@@ -362,7 +397,7 @@ class MainWindow(QMainWindow):
         if self.url_input.property("invalid"):
             self.url_input.setProperty("invalid", False)
             repolish(self.url_input)
-            self._set_hint("Funciona com publicações públicas de imagem única e carrosséis.", "faint")
+            self._set_hint("Funciona com publicações públicas: imagens, vídeos, Reels e carrosséis.", "faint")
 
     def _set_hint(self, text: str, role: str) -> None:
         self.url_hint.setText(text)
@@ -412,7 +447,7 @@ class MainWindow(QMainWindow):
         self._analyzing = True
         self._last_parsed = parsed
         self.banner.hide()
-        self._set_hint("Funciona com publicações públicas de imagem única e carrosséis.", "faint")
+        self._set_hint("Funciona com publicações públicas: imagens, vídeos, Reels e carrosséis.", "faint")
         self.state_view.set_state(
             icon_name=None, title="Analisando publicação…",
             text="Buscando as imagens disponíveis. Isso costuma levar poucos segundos.",
@@ -445,7 +480,11 @@ class MainWindow(QMainWindow):
         self._post = post
         self._selection = Selection([i.position for i in post.images], select_all=True)
         is_single = post.kind is PostKind.SINGLE
-        self.post_title.setText("Imagem única" if is_single else f"Carrossel · {post.image_count} imagens")
+        if is_single:
+            title = "Vídeo" if post.video_count else "Imagem única"
+        else:
+            title = f"Carrossel · {_count_label(post.photo_count, post.video_count)}"
+        self.post_title.setText(title)
         meta = f"@{post.owner}" if post.owner else post.shortcode
         self.post_meta.setText(meta)
         self.grid.set_items(post.images)
@@ -462,8 +501,8 @@ class MainWindow(QMainWindow):
         if post.skipped_videos:
             n = post.skipped_videos
             self.banner.show_message(
-                "info", f"{n} vídeo{'s' if n > 1 else ''} ignorado{'s' if n > 1 else ''}",
-                "O Pixora baixa apenas imagens; os vídeos deste carrossel não foram incluídos.",
+                "info", f"{n} {'item ignorado' if n == 1 else 'itens ignorados'}",
+                "Alguns vídeos deste carrossel não estão disponíveis publicamente e não foram incluídos.",
             )
         self._update_controls()
 
@@ -566,7 +605,7 @@ class MainWindow(QMainWindow):
         self._update_controls()
         post = self._post
         task = Task(self.service.download, post, items, folder, self.settings.policy, self._cancel_event,
-                    with_progress=True)
+                    with_progress=True, image_format=self._current_format())
         self._runner.start(
             task,
             on_success=lambda rep, p=post: self._on_download_done(p, rep),
@@ -609,7 +648,7 @@ class MainWindow(QMainWindow):
 
         parts = []
         if saved:
-            parts.append(f"{saved} {'imagem salva' if saved == 1 else 'imagens salvas'}")
+            parts.append(f"{saved} {'arquivo salvo' if saved == 1 else 'arquivos salvos'}")
         if skipped:
             parts.append(f"{skipped} já {'existia' if skipped == 1 else 'existiam'} e {'foi pulada' if skipped == 1 else 'foram puladas'}")
         if failed:
@@ -623,7 +662,7 @@ class MainWindow(QMainWindow):
             kind, title = "warning", "Download cancelado"
             detail = (summary + ". " + detail).strip()
         elif failed and not saved and not skipped:
-            kind, title = "error", "Não foi possível salvar as imagens"
+            kind, title = "error", "Não foi possível salvar os arquivos"
         elif failed:
             kind, title = "warning", summary
         else:
@@ -669,16 +708,48 @@ class MainWindow(QMainWindow):
         elif not self._post or self._analyzing:
             text = "Baixar"
         elif self._post.kind is PostKind.SINGLE:
-            text = "Baixar imagem"
+            text = "Baixar vídeo" if self._post.video_count else "Baixar imagem"
         elif self._selection.all_selected:
             text = f"Baixar todas ({n})"
         else:
             text = f"Baixar selecionadas ({n})"
         self.download_btn.setText(text)
+        self._update_format_box()
         self.download_btn.setEnabled(
             self._post is not None and n > 0 and not self._downloading and not self._analyzing
         )
         self._update_folder_label()
+
+    def _selected_items(self) -> list:
+        if not self._post:
+            return []
+        selected = set(self._selection.selected())
+        return [i for i in self._post.images if i.position in selected]
+
+    def _update_format_box(self) -> None:
+        items = self._selected_items() if not self._analyzing else []
+        has_images = any(not i.is_video for i in items)
+        self.format_box.setVisible(bool(items))
+        # Apenas vídeos selecionados: MP4 é o formato fixo, sem necessidade de escolha.
+        for b in self.format_buttons.values():
+            b.setVisible(has_images)
+            b.setEnabled(not self._downloading)
+        self.video_format_label.setVisible(bool(items) and not has_images)
+
+    def _current_format(self) -> ImageFormat:
+        for fmt, b in self.format_buttons.items():
+            if b.isChecked():
+                return fmt
+        return ImageFormat.JPG
+
+    def _on_format_changed(self, _index: int) -> None:
+        value = self._current_format().value
+        if value != self.settings.image_format:
+            self.settings.image_format = value
+            try:
+                self.settings_store.save(self.settings)
+            except Exception:  # noqa: BLE001
+                log.exception("Falha ao salvar o formato escolhido")
 
     # ----------------------------------------------------------- diálogos
     def open_settings(self) -> None:

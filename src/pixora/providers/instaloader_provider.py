@@ -80,7 +80,7 @@ class InstaloaderProvider:
                 sleep=False,
                 quiet=True,
                 download_pictures=False,
-                download_videos=False,
+                download_videos=False,  # o Pixora baixa por conta própria
                 download_video_thumbnails=False,
                 save_metadata=False,
                 compress_json=False,
@@ -238,6 +238,26 @@ def _is_video(node: dict[str, Any]) -> bool:
     return node.get("__typename") in ("GraphVideo", "XDTGraphVideo")
 
 
+def _video_url(node: dict[str, Any]) -> str | None:
+    """URL do MP4 de maior resolução disponível, ou ``None``."""
+    versions = [v for v in node.get("video_versions") or [] if isinstance(v, dict) and v.get("url")]
+    if versions:
+        return max(versions, key=lambda v: (v.get("width") or 0) * (v.get("height") or 0))["url"]
+    url = node.get("video_url")
+    return url if isinstance(url, str) and url else None
+
+
+def _parse_item(node: dict[str, Any], pos: int, thumb_width: int) -> ImageItem | None:
+    """Converte um nó em item; ``None`` para vídeos sem URL acessível."""
+    full, thumb, w, h = _pick_urls(node, thumb_width)
+    if _is_video(node):
+        video = _video_url(node)
+        if not video:
+            return None
+        return ImageItem(position=pos, full_url=video, thumbnail_url=thumb, width=w, height=h, is_video=True)
+    return ImageItem(position=pos, full_url=full, thumbnail_url=thumb, width=w, height=h)
+
+
 def parse_post_node(node: dict[str, Any], shortcode: str, owner: str | None = None) -> PostInfo:
     if not isinstance(node, dict):
         raise ProviderBrokenError(detail="nó da publicação não é um dicionário")
@@ -250,26 +270,23 @@ def parse_post_node(node: dict[str, Any], shortcode: str, owner: str | None = No
 
     url = f"https://www.instagram.com/p/{shortcode}/"
     if children:
-        images: list[ImageItem] = []
+        items: list[ImageItem] = []
         skipped = 0
         for pos, child in enumerate(children, start=1):
-            if _is_video(child):
+            item = _parse_item(child, pos, THUMB_WIDTH_GRID)
+            if item is None:
                 skipped += 1
                 continue
-            full, thumb, w, h = _pick_urls(child)
-            images.append(ImageItem(position=pos, full_url=full, thumbnail_url=thumb, width=w, height=h))
-        if not images:
+            items.append(item)
+        if not items:
             raise UnsupportedContentError(
-                "Este carrossel contém apenas vídeos. O Pixora baixa somente imagens."
+                "Não foi possível obter as mídias deste carrossel. Tente novamente mais tarde."
             )
-        return PostInfo(shortcode, url, PostKind.CAROUSEL, tuple(images), owner, skipped)
+        return PostInfo(shortcode, url, PostKind.CAROUSEL, tuple(items), owner, skipped)
 
-    if _is_video(node):
+    item = _parse_item(node, 1, THUMB_WIDTH_SINGLE)
+    if item is None:
         raise UnsupportedContentError(
-            "Esta publicação é um vídeo. O Pixora baixa somente imagens de publicações e carrosséis."
+            "Não foi possível obter o arquivo deste vídeo. Ele pode estar indisponível sem login."
         )
-    full, thumb, w, h = _pick_urls(node, THUMB_WIDTH_SINGLE)
-    return PostInfo(
-        shortcode, url, PostKind.SINGLE,
-        (ImageItem(position=1, full_url=full, thumbnail_url=thumb, width=w, height=h),), owner,
-    )
+    return PostInfo(shortcode, url, PostKind.SINGLE, (item,), owner)

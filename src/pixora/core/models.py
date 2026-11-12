@@ -7,6 +7,24 @@ from enum import Enum
 from pathlib import Path
 
 
+class ImageFormat(str, Enum):
+    """Formato de saída escolhido pelo usuário para as imagens (vídeos são sempre MP4)."""
+
+    JPG = "jpg"
+    PNG = "png"
+
+    @property
+    def extension(self) -> str:
+        return f".{self.value}"
+
+    @property
+    def label(self) -> str:
+        return self.value.upper()
+
+
+VIDEO_EXTENSION = ".mp4"
+
+
 class PostKind(str, Enum):
     SINGLE = "single"
     CAROUSEL = "carousel"
@@ -22,7 +40,9 @@ class ParsedPostUrl:
 
 @dataclass(frozen=True)
 class ImageItem:
-    """Uma imagem de uma publicação.
+    """Uma mídia (imagem ou vídeo) de uma publicação.
+
+    Para vídeos, ``full_url`` aponta para o arquivo MP4 e ``thumbnail_url`` para a capa.
 
     ``position`` é a posição (1-based) na publicação original, contando também
     eventuais vídeos do carrossel, para que os nomes de arquivo reflitam a ordem real.
@@ -33,6 +53,7 @@ class ImageItem:
     thumbnail_url: str
     width: int | None = None
     height: int | None = None
+    is_video: bool = False
 
     @property
     def aspect_ratio(self) -> float:
@@ -53,6 +74,14 @@ class PostInfo:
     @property
     def image_count(self) -> int:
         return len(self.images)
+
+    @property
+    def video_count(self) -> int:
+        return sum(1 for i in self.images if i.is_video)
+
+    @property
+    def photo_count(self) -> int:
+        return self.image_count - self.video_count
 
 
 @dataclass

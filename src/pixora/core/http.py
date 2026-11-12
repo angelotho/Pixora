@@ -25,6 +25,7 @@ CONNECT_TIMEOUT = 10.0
 READ_TIMEOUT = 30.0
 MAX_REDIRECTS = 3
 MAX_IMAGE_BYTES = 60 * 1024 * 1024
+MAX_VIDEO_BYTES = 2 * 1024 * 1024 * 1024
 CHUNK_SIZE = 64 * 1024
 
 
@@ -113,6 +114,7 @@ class MediaHttpClient:
         resp: requests.Response,
         cancel: threading.Event | None = None,
         on_chunk: Callable[[int], None] | None = None,
+        max_bytes: int = MAX_IMAGE_BYTES,
     ) -> Iterator[bytes]:
         total = 0
         try:
@@ -122,8 +124,8 @@ class MediaHttpClient:
                 if not chunk:
                     continue
                 total += len(chunk)
-                if total > MAX_IMAGE_BYTES:
-                    raise DownloadError("O arquivo é maior do que o permitido para uma imagem.")
+                if total > max_bytes:
+                    raise DownloadError("O arquivo é maior do que o tamanho máximo permitido.")
                 if on_chunk:
                     on_chunk(len(chunk))
                 yield chunk

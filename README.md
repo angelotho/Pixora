@@ -1,8 +1,8 @@
 # Pixora
 
-Aplicativo desktop gratuito para Windows que baixa **imagens** de publicações e carrosséis **públicos** do Instagram a partir do link da publicação.
+Aplicativo desktop gratuito para Windows que baixa **imagens e vídeos** de publicações, Reels e carrosséis **públicos** do Instagram a partir do link da publicação.
 
-- Cole o link → **Analisar** → pré-visualize as imagens na ordem original → selecione → **Baixar**.
+- Cole o link → **Analisar** → pré-visualize as mídias na ordem original → selecione → escolha **PNG** ou **JPG** para as imagens → **Baixar** (vídeos sempre em **MP4**).
 - Tema escuro (padrão) e claro, interface responsiva, nada de travamentos durante rede ou downloads.
 - Funciona 100% localmente: sem servidor, sem conta, sem senha, sem telemetria.
 
@@ -14,11 +14,11 @@ Aplicativo desktop gratuito para Windows que baixa **imagens** de publicações 
 
 | Área | O que faz |
 |---|---|
-| Links | Aceita `instagram.com/p/<código>`, com ou sem `www`/`https`, `m.instagram.com`, `instagr.am`, `/<usuário>/p/<código>`, parâmetros de compartilhamento (`?igsh=…`, `?utm_source=…`, `?img_index=…`). Recusa outros domínios, IPs, portas, credenciais embutidas e esquemas não-HTTP, com mensagens específicas para Reels, Stories, perfis etc. |
-| Análise | Identifica imagem única ou carrossel; ignora vídeos do carrossel (e avisa quantos); recusa posts de vídeo. Indicador de carregamento com opção de cancelar. |
+| Links | Aceita `instagram.com/p/<código>`, `/reel/<código>`, `/tv/<código>`, com ou sem `www`/`https`, `m.instagram.com`, `instagr.am`, `/<usuário>/p/<código>`, parâmetros de compartilhamento (`?igsh=…`, `?utm_source=…`, `?img_index=…`). Recusa outros domínios, IPs, portas, credenciais embutidas e esquemas não-HTTP, com mensagens específicas para Stories, perfis etc. |
+| Análise | Identifica imagem única, vídeo ou carrossel (misto de imagens e vídeos); vídeos aparecem com o selo ▶ VÍDEO. Vídeos sem arquivo público são ignorados com aviso. Indicador de carregamento com opção de cancelar. |
 | Pré-visualização | Grade responsiva na ordem original, miniaturas leves baixadas em paralelo (separadas do arquivo final), proporções preservadas, posição e resolução em cada cartão. |
 | Seleção | Clique (ou Espaço) para marcar/desmarcar; *Selecionar todas*, *Limpar seleção*, contador "N imagens · M selecionadas". |
-| Downloads | Maior resolução que o Instagram disponibiliza publicamente; nomes `instagram_<CÓDIGO>_01.jpg`; extensão definida pelo **conteúdo real** do arquivo (JPEG, PNG, WEBP, HEIC, AVIF, GIF); nunca sobrescreve (cópia numerada ou pular, configurável); barra de progresso; cancelamento; resumo de salvos/pulados/falhas; botão **Abrir pasta**. |
+| Downloads | Maior resolução que o Instagram disponibiliza publicamente; nomes `instagram_<CÓDIGO>_01.jpg`; **formato escolhido no rodapé** (JPG — padrão — ou PNG, lembrado entre sessões): a imagem só é convertida quando o original está em outro formato (PNG sem perdas; JPG com qualidade 95 e transparência sobre fundo branco); vídeos são salvos em **MP4** sem recodificação; nunca sobrescreve (cópia numerada ou pular, configurável); barra de progresso; cancelamento; resumo de salvos/pulados/falhas; botão **Abrir pasta**. |
 | Histórico | SQLite local com data, publicação, autor, pasta e arquivos. Rebaixar o mesmo post na mesma pasta atualiza o registro (sem duplicatas). Abrir pasta, abrir publicação, remover item, limpar tudo. Nenhuma imagem é armazenada no histórico. |
 | Configurações | Pasta padrão, perguntar pasta a cada download, abrir pasta ao concluir, política de conflito, tema, colar automaticamente links copiados, ativar/desativar histórico. |
 | Robustez | Erros traduzidos em mensagens claras; nenhum erro encerra o app; logs locais rotativos sem tokens/assinaturas; limites de tempo em toda requisição; uma operação por vez. |
@@ -29,7 +29,7 @@ Atalhos: `Enter` analisa · `Esc` cancela · `Ctrl+L` foca o link · `Ctrl+D` ba
 
 ## Instalação e uso (usuário final)
 
-1. Baixe `Pixora-1.0.1-windows-x64.zip`, extraia e execute `Pixora\Pixora.exe`. Não é preciso instalar Python.
+1. Baixe `Pixora-1.1.0-windows-x64.zip`, extraia e execute `Pixora\Pixora.exe`. Não é preciso instalar Python.
 2. **Aviso do Windows SmartScreen:** o executável **não possui assinatura digital** (certificados de assinatura são pagos). Na primeira execução o Windows pode mostrar "O Windows protegeu o computador". Clique em **Mais informações → Executar assim mesmo** se confiar na origem do arquivo. Esse aviso é esperado e não foi ocultado.
 
 Onde ficam os dados (fora da pasta do programa):
@@ -64,7 +64,7 @@ py -3.12 -m venv .venv
 $env:PIXORA_NETWORK_TESTS = "1"; .\.venv\Scripts\python.exe -m pytest -m network
 
 # 5. Gerar o executável (roda os testes, gera ícone, empacota, testa a inicialização e cria o ZIP)
-.\build.ps1             # dist\Pixora\Pixora.exe + dist\Pixora-1.0.1-windows-x64.zip
+.\build.ps1             # dist\Pixora\Pixora.exe + dist\Pixora-1.1.0-windows-x64.zip
 .\build.ps1 -OneFile    # dist\Pixora.exe único (inicia mais devagar; mais alertas de antivírus)
 ```
 

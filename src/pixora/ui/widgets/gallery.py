@@ -202,11 +202,13 @@ class ImageCard(QWidget):
 
         # Posição (canto inferior esquerdo)
         self._pill(p, f"{self.item.position:0{self._digits}d}", img_rect, left=True)
+        if self.item.is_video:
+            self._pill(p, "▶ VÍDEO", img_rect, left=True, top=True)
         if self._hover and self.item.width and self.item.height:
             self._pill(p, f"{self.item.width}×{self.item.height}", img_rect, left=False)
         p.end()
 
-    def _pill(self, p: QPainter, text: str, area: QRectF, *, left: bool) -> None:
+    def _pill(self, p: QPainter, text: str, area: QRectF, *, left: bool, top: bool = False) -> None:
         f = QFont(self.font())
         f.setPointSizeF(8.5)
         f.setWeight(QFont.Weight.DemiBold)
@@ -215,7 +217,8 @@ class ImageCard(QWidget):
         w = fm.horizontalAdvance(text) + 16
         h = fm.height() + 6
         x = area.left() + 8 if left else area.right() - w - 8
-        r = QRectF(x, area.bottom() - h - 8, w, h)
+        y = area.top() + 8 if top else area.bottom() - h - 8
+        r = QRectF(x, y, w, h)
         p.setPen(Qt.PenStyle.NoPen)
         p.setBrush(QColor(10, 12, 16, 175))
         p.drawRoundedRect(r, h / 2, h / 2)

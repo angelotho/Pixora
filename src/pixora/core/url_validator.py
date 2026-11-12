@@ -3,7 +3,7 @@
 Regras de segurança:
 * apenas hosts oficiais do Instagram (sem IPs, portas, credenciais embutidas);
 * apenas esquemas http/https (normalizados para https);
-* apenas caminhos de publicação (``/p/<código>/``), com ou sem nome de usuário;
+* apenas caminhos de publicação (``/p/``, ``/reel/``, ``/tv/``), com ou sem nome de usuário;
 * o link nunca é requisitado diretamente — apenas o código (shortcode) extraído
   é repassado à camada de integração, eliminando redirecionamentos inseguros.
 """
@@ -33,7 +33,7 @@ USERNAME_RE = re.compile(r"^[A-Za-z0-9._]{1,30}$")
 _POST_PREFIXES = {"p"}
 _VIDEO_PREFIXES = {"reel", "reels", "tv"}
 _OTHER_UNSUPPORTED = {
-    "stories": "Stories não são suportados. O Pixora baixa apenas imagens de publicações.",
+    "stories": "Stories não são suportados. O Pixora baixa apenas mídias de publicações.",
     "live": "Transmissões ao vivo não são suportadas.",
     "explore": "Páginas de explorar não são suportadas. Use o link de uma publicação.",
 }
@@ -95,14 +95,10 @@ def parse_post_url(raw: str) -> ParsedPostUrl:
     prefix = segments[prefix_index].lower()
     if prefix in _OTHER_UNSUPPORTED:
         raise UnsupportedContentError(_OTHER_UNSUPPORTED[prefix])
-    if prefix in _VIDEO_PREFIXES:
-        raise UnsupportedContentError(
-            "Este link é de um Reel ou vídeo. O Pixora baixa apenas imagens de publicações e carrosséis."
-        )
-    if prefix not in _POST_PREFIXES:
+    if prefix not in _POST_PREFIXES | _VIDEO_PREFIXES:
         if len(segments) == 1 and USERNAME_RE.match(segments[0]):
             raise UnsupportedContentError(
-                "Este é o link de um perfil. O Pixora baixa imagens de uma publicação por vez — "
+                "Este é o link de um perfil. O Pixora baixa mídias de uma publicação por vez — "
                 "abra a publicação e copie o link dela."
             )
         raise InvalidUrlError("O link não corresponde a uma publicação do Instagram.")

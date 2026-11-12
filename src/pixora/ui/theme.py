@@ -157,6 +157,20 @@ QPushButton[variant="link"] {{
 }}
 QPushButton[variant="link"]:hover {{ color: {t.accent_hover}; text-decoration: underline; }}
 
+/* Controle segmentado (formato de saída) */
+#Segmented {{ background: {t.surface2}; border: 1px solid {t.border}; border-radius: 11px; }}
+#Segmented QPushButton {{
+    background: transparent; border: 1px solid transparent; border-radius: 8px;
+    min-height: 32px; min-width: 52px; padding: 0 12px; color: {t.text_muted}; font-size: 9.5pt;
+}}
+#Segmented QPushButton:hover {{ color: {t.text}; background: {t.surface3}; }}
+#Segmented QPushButton:checked {{ background: {t.accent_soft}; color: {t.accent}; border-color: {t.accent}; }}
+#Segmented QPushButton:disabled {{ color: {t.text_faint}; background: transparent; }}
+#Segmented QPushButton:checked:disabled {{ background: {t.surface3}; border-color: {t.border}; }}
+#Segmented QLabel[role="segLocked"] {{
+    color: {t.text_muted}; font-size: 9.5pt; font-weight: 600; padding: 0 12px; min-height: 32px;
+}}
+
 /* Progresso */
 QProgressBar {{
     background: {t.surface3}; border: none; border-radius: 3px; max-height: 6px; min-height: 6px;

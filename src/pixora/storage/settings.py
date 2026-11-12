@@ -9,6 +9,7 @@ from dataclasses import asdict, dataclass, fields
 from pathlib import Path
 
 from pixora.core.filenames import ConflictPolicy
+from pixora.core.models import ImageFormat
 from . import paths
 
 log = logging.getLogger(__name__)
@@ -25,6 +26,7 @@ class Settings:
     open_folder_after_download: bool = False
     save_history: bool = True
     auto_paste: bool = True
+    image_format: str = ImageFormat.JPG.value
     window_geometry: str = ""
 
     def __post_init__(self) -> None:
@@ -32,6 +34,8 @@ class Settings:
             self.theme = "dark"
         if self.conflict_policy not in {p.value for p in ConflictPolicy}:
             self.conflict_policy = ConflictPolicy.RENAME.value
+        if self.image_format not in {f.value for f in ImageFormat}:
+            self.image_format = ImageFormat.JPG.value
         if not self.download_dir:
             self.download_dir = str(paths.default_download_dir())
 
@@ -42,6 +46,10 @@ class Settings:
     @property
     def policy(self) -> ConflictPolicy:
         return ConflictPolicy(self.conflict_policy)
+
+    @property
+    def format(self) -> ImageFormat:
+        return ImageFormat(self.image_format)
 
 
 class SettingsStore:

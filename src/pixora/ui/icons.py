@@ -1,7 +1,8 @@
 """Ícones vetoriais (traço, estilo linear) renderizados em tempo de execução.
 
 Os ícones são desenhados em SVG e coloridos de acordo com o tema, o que mantém
-nitidez em qualquer escala de DPI sem depender de arquivos de imagem externos.
+nitidez em qualquer escala de DPI. A exceção é o símbolo do Pixora, que vem de
+``assets/logo.png``.
 """
 
 from __future__ import annotations
@@ -12,7 +13,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from PySide6.QtCore import QByteArray, QRectF, QSize, Qt
-from PySide6.QtGui import QIcon, QPainter, QPixmap
+from PySide6.QtGui import QColor, QIcon, QImage, QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QApplication
 
@@ -55,18 +56,9 @@ _PATHS: dict[str, str] = {
     "info": '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
 }
 
-LOGO_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-<defs>
-  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" stop-color="#8E6BFF"/><stop offset="0.55" stop-color="#6A48F2"/>
-    <stop offset="1" stop-color="#3D7BFF"/>
-  </linearGradient>
-</defs>
-<rect x="2" y="2" width="60" height="60" rx="16" fill="url(#g)"/>
-<rect x="15" y="15" width="34" height="34" rx="9" fill="none" stroke="#fff" stroke-width="4"/>
-<circle cx="27" cy="27" r="4" fill="#fff"/>
-<path d="M17 45 30 33a3 3 0 0 1 4 0l13 12" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
-</svg>"""
+# Símbolo oficial do Pixora: PNG quadrado com fundo transparente (cor sólida da marca).
+LOGO_PATH = Path(__file__).resolve().parents[1] / "assets" / "logo.png"
+BRAND_COLOR = "#5D01B2"
 
 
 def svg_markup(name: str, color: str, stroke: float = 2.0) -> str:
@@ -111,14 +103,42 @@ def icon(name: str, color: str, size: int = 18, disabled_color: str | None = Non
     return ic
 
 
-def logo_pixmap(size: int) -> QPixmap:
-    return _render(LOGO_SVG, size, max(2.0, _dpr()))
+@lru_cache(maxsize=8)
+def logo_image(color: str = BRAND_COLOR) -> QImage:
+    """Símbolo em alta resolução, recolorido (a forma vem do canal alfa). Nulo se o arquivo faltar."""
+    img = QImage(str(LOGO_PATH))
+    if img.isNull():
+        return img
+    img = img.convertToFormat(QImage.Format.Format_ARGB32_Premultiplied)
+    if color.lower() != BRAND_COLOR.lower():
+        p = QPainter(img)
+        p.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
+        p.fillRect(img.rect(), QColor(color))
+        p.end()
+    return img
+
+
+def _scaled_logo(size: int, dpr: float, color: str) -> QPixmap:
+    px = max(1, round(size * dpr))
+    img = logo_image(color)
+    if img.isNull():
+        pm = QPixmap(px, px)
+        pm.fill(Qt.GlobalColor.transparent)
+    else:
+        pm = QPixmap.fromImage(img.scaled(px, px, Qt.AspectRatioMode.KeepAspectRatio,
+                                          Qt.TransformationMode.SmoothTransformation))
+    pm.setDevicePixelRatio(dpr)
+    return pm
+
+
+def logo_pixmap(size: int, color: str = BRAND_COLOR) -> QPixmap:
+    return _scaled_logo(size, max(2.0, _dpr()), color)
 
 
 def app_icon() -> QIcon:
     ic = QIcon()
     for s in (16, 24, 32, 48, 64, 128, 256):
-        ic.addPixmap(_render(LOGO_SVG, s, 1.0))
+        ic.addPixmap(_scaled_logo(s, 1.0, BRAND_COLOR))
     return ic
 
 

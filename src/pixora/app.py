@@ -159,7 +159,8 @@ def main(argv: list[str] | None = None) -> int:
 
     service = PixoraService(InstaloaderProvider())
     window = MainWindow(service, settings_store, history, str(log_file))
-    window.show()
+    from pixora.ui.splash import play_intro
+    play_intro(window)  # abertura animada; mostra a janela ao final (ou já, sem animações)
 
     if os.environ.get("PIXORA_SMOKE_TEST"):
         # Usado no build para confirmar que o executável inicia corretamente.

@@ -116,9 +116,10 @@ class MainWindow(QMainWindow):
         # Cabeçalho
         header = QHBoxLayout()
         header.setSpacing(12)
-        logo = QLabel()
-        logo.setPixmap(icons.logo_pixmap(38))
+        self.logo_label = logo = QLabel()
+        logo.setPixmap(icons.logo_pixmap(38, theme.current().brand))
         logo.setFixedSize(38, 38)
+        logo.setAccessibleName(f"Logotipo do {__app_name__}")
         titles = QVBoxLayout()
         titles.setSpacing(0)
         title_row = QHBoxLayout()
@@ -324,6 +325,7 @@ class MainWindow(QMainWindow):
 
     def _restyle_icons(self) -> None:
         t = theme.current()
+        self.logo_label.setPixmap(icons.logo_pixmap(38, t.brand))
         self._link_action.setIcon(icons.icon("link", t.text_faint, 18))
         self.folder_icon.setPixmap(icons.pixmap("folder", t.accent, 20))
         for btn in self.findChildren(type(self.analyze_btn)):

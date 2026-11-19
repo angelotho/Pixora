@@ -27,6 +27,7 @@ class Tokens:
     accent_pressed: str
     accent_soft: str
     on_accent: str
+    brand: str  # cor do símbolo do Pixora neste tema
     success: str
     success_soft: str
     danger: str
@@ -45,8 +46,9 @@ DARK = Tokens(
     bg="#0E1014", surface="#161920", surface2="#1C2029", surface3="#242936",
     border="#262B36", border_strong="#353B49",
     text="#ECEEF3", text_muted="#9BA3B4", text_faint="#666E80",
-    accent="#7C5CFF", accent_hover="#8D72FF", accent_pressed="#6A48F2",
-    accent_soft="rgba(124, 92, 255, 0.16)", on_accent="#FFFFFF",
+    # Roxo da marca clareado: o #5D01B2 original some sobre o fundo escuro.
+    accent="#8F4BFF", accent_hover="#9C61FF", accent_pressed="#7E35F2",
+    accent_soft="rgba(143, 75, 255, 0.16)", on_accent="#FFFFFF", brand="#8F4BFF",
     success="#3DD68C", success_soft="rgba(61, 214, 140, 0.13)",
     danger="#FF6B7A", danger_soft="rgba(255, 107, 122, 0.13)",
     warning="#FFB547", warning_soft="rgba(255, 181, 71, 0.13)",
@@ -58,8 +60,8 @@ LIGHT = Tokens(
     bg="#F3F4F8", surface="#FFFFFF", surface2="#F6F7FA", surface3="#ECEEF3",
     border="#E1E4EB", border_strong="#CDD2DC",
     text="#151821", text_muted="#5B6476", text_faint="#9198A6",
-    accent="#6447F5", accent_hover="#7358FF", accent_pressed="#5236E0",
-    accent_soft="rgba(100, 71, 245, 0.10)", on_accent="#FFFFFF",
+    accent="#5D01B2", accent_hover="#6E17C7", accent_pressed="#4C0093",
+    accent_soft="rgba(93, 1, 178, 0.10)", on_accent="#FFFFFF", brand="#5D01B2",
     success="#13A866", success_soft="rgba(19, 168, 102, 0.10)",
     danger="#E03D52", danger_soft="rgba(224, 61, 82, 0.09)",
     warning="#C97A00", warning_soft="rgba(201, 122, 0, 0.10)",

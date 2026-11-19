@@ -1,4 +1,4 @@
-"""Gera src/pixora/assets/pixora.ico (multi-resolução) a partir do logotipo vetorial."""
+"""Gera src/pixora/assets/pixora.ico (multi-resolução) a partir de assets/logo.png."""
 
 from __future__ import annotations
 
@@ -8,22 +8,19 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from PySide6.QtCore import QBuffer, QByteArray, QIODevice, QRectF, Qt  # noqa: E402
-from PySide6.QtGui import QGuiApplication, QImage, QPainter  # noqa: E402
-from PySide6.QtSvg import QSvgRenderer  # noqa: E402
+from PySide6.QtCore import QBuffer, QByteArray, QIODevice, Qt  # noqa: E402
+from PySide6.QtGui import QGuiApplication  # noqa: E402
 
-from pixora.ui.icons import LOGO_SVG  # noqa: E402
+from pixora.ui.icons import logo_image  # noqa: E402
 
 SIZES = (16, 24, 32, 48, 64, 128, 256)
 
 
 def render_png(size: int) -> bytes:
-    img = QImage(size, size, QImage.Format.Format_ARGB32)
-    img.fill(Qt.GlobalColor.transparent)
-    p = QPainter(img)
-    p.setRenderHint(QPainter.RenderHint.Antialiasing)
-    QSvgRenderer(QByteArray(LOGO_SVG.encode())).render(p, QRectF(0, 0, size, size))
-    p.end()
+    src = logo_image()
+    if src.isNull():
+        raise SystemExit("assets/logo.png não encontrado")
+    img = src.scaled(size, size, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
     buf = QByteArray()
     dev = QBuffer(buf)
     dev.open(QIODevice.OpenModeFlag.WriteOnly)

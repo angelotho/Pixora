@@ -6,7 +6,7 @@
 
 **Baixe imagens e vídeos de publicações públicas do Instagram, direto no seu computador.**
 
-[![Versão](https://img.shields.io/badge/versão-1.1.1-7c5cff)](https://github.com/angelotho/Pixora/releases)
+[![Versão](https://img.shields.io/badge/versão-1.1.2-5d01b2)](https://github.com/angelotho/Pixora/releases)
 [![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)](#download-e-instalação)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](#desenvolvimento)
 [![Qt](https://img.shields.io/badge/UI-PySide6-41CD52?logo=qt&logoColor=white)](https://doc.qt.io/qtforpython-6/)
@@ -38,7 +38,7 @@ Tudo roda **100% no seu computador**: sem servidor, sem conta, sem senha e sem t
 
 ## Download e instalação
 
-1. Baixe o arquivo `Pixora-1.1.1-windows-x64.zip` na página de [**Releases**](https://github.com/angelotho/Pixora/releases).
+1. Baixe o arquivo `Pixora-1.1.2-windows-x64.zip` na página de [**Releases**](https://github.com/angelotho/Pixora/releases).
 2. Extraia o ZIP para uma pasta de sua preferência.
 3. Execute `Pixora\Pixora.exe`. Não é preciso instalar Python nem nada mais.
 
@@ -155,7 +155,7 @@ Também é possível instalar como pacote com `pip install -e .[dev]` e executar
 ### Gerar o executável
 
 ```powershell
-.\build.ps1             # dist\Pixora\Pixora.exe + dist\Pixora-1.1.1-windows-x64.zip
+.\build.ps1             # dist\Pixora\Pixora.exe + dist\Pixora-1.1.2-windows-x64.zip
 .\build.ps1 -OneFile    # dist\Pixora.exe único (inicia mais devagar; mais alertas de antivírus)
 ```
 
@@ -206,6 +206,10 @@ src/pixora/
 A versão aparece em `pyproject.toml`, `src/pixora/__init__.py`, `build.ps1`, `scripts/version_info.txt` e neste README; atualize todos ao lançar. Depois de `X.Y.9` vem `X.(Y+1).0`.
 
 ## Novidades
+
+**1.1.2**
+- Nova identidade visual: novo logotipo no app, no ícone do Windows e nas cores da interface.
+- Animação de abertura (clique ou Esc para pular; não aparece se as animações do Windows estiverem desligadas).
 
 **1.1.1**
 - Corrigido: quando o Instagram limitava as consultas, o app mostrava "Publicação indisponível" por engano. Agora mostra **Muitas solicitações** e orienta a aguardar.

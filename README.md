@@ -7,12 +7,12 @@
 **Baixe imagens e vídeos de publicações públicas do Instagram, direto no seu computador.**
 
 [![Versão](https://img.shields.io/badge/versão-1.1.1-7c5cff)](https://github.com/angelotho/Pixora/releases)
-[![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)](#-download-e-instalação)
-[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](#-desenvolvimento)
+[![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)](#download-e-instalação)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](#desenvolvimento)
 [![Qt](https://img.shields.io/badge/UI-PySide6-41CD52?logo=qt&logoColor=white)](https://doc.qt.io/qtforpython-6/)
 [![Licença](https://img.shields.io/badge/licença-MIT-green)](LICENSE)
 
-[Download](#-download-e-instalação) · [Como usar](#-como-usar) · [Solução de problemas](#-solução-de-problemas) · [Desenvolvimento](#-desenvolvimento)
+[Download](#download-e-instalação) · [Como usar](#como-usar) · [Solução de problemas](#solução-de-problemas) · [Desenvolvimento](#desenvolvimento)
 
 </div>
 
@@ -25,7 +25,7 @@ Tudo roda **100% no seu computador**: sem servidor, sem conta, sem senha e sem t
 > [!IMPORTANT]
 > Use o Pixora apenas com conteúdo próprio ou que você tenha autorização para baixar e usar. Respeite os direitos autorais dos criadores.
 
-## ✨ Destaques
+## Destaques
 
 - **Imagens, vídeos e carrosséis**: publicações únicas, Reels e carrosséis mistos, sempre na ordem original.
 - **Pré-visualização antes de baixar**: grade com miniaturas, posição e resolução de cada item; selecione só o que quiser.
@@ -36,7 +36,7 @@ Tudo roda **100% no seu computador**: sem servidor, sem conta, sem senha e sem t
 - **Interface fluida**: tema escuro e claro, atalhos de teclado, nada trava durante análises ou downloads.
 - **Privado por padrão**: nenhum login, nenhum cookie do navegador, nenhum dado enviado a terceiros.
 
-## 📥 Download e instalação
+## Download e instalação
 
 1. Baixe o arquivo `Pixora-1.1.1-windows-x64.zip` na página de [**Releases**](https://github.com/angelotho/Pixora/releases).
 2. Extraia o ZIP para uma pasta de sua preferência.
@@ -47,7 +47,7 @@ Tudo roda **100% no seu computador**: sem servidor, sem conta, sem senha e sem t
 
 **Para atualizar**, feche o Pixora e substitua a pasta `Pixora` inteira pela nova versão. Suas configurações e seu histórico ficam em outra pasta e são preservados.
 
-## 🚀 Como usar
+## Como usar
 
 1. No Instagram, abra a publicação e copie o link (**⋯ → Copiar link**).
 2. No Pixora, cole o link e clique em **Analisar**.
@@ -85,7 +85,7 @@ Stories, lives, perfis e páginas de explorar não são suportados, e o app avis
 
 Pasta padrão de downloads, perguntar a pasta a cada download, abrir a pasta ao concluir, o que fazer com arquivos repetidos, tema claro/escuro, colar automaticamente links copiados e ativar/desativar o histórico.
 
-## 🔒 Privacidade e segurança
+## Privacidade e segurança
 
 - **Sem login**: o Pixora acessa apenas conteúdo público, de forma anônima. Não pede senha nem lê cookies do navegador.
 - **Sem servidor e sem telemetria**: nenhuma informação sai do seu computador além das requisições ao próprio Instagram.
@@ -104,7 +104,7 @@ Pasta padrão de downloads, perguntar a pasta a cada download, abrir a pasta ao 
 
 O histórico guarda apenas data, link, autor, pasta e nomes de arquivos. Nenhuma imagem fica armazenada nele.
 
-## 🛠 Solução de problemas
+## Solução de problemas
 
 | Mensagem | O que significa | O que fazer |
 |---|---|---|
@@ -121,7 +121,7 @@ O histórico guarda apenas data, link, autor, pasta e nomes de arquivos. Nenhuma
 Pixora.exe --diagnose "https://www.instagram.com/p/<código>/"
 ```
 
-## ⚠️ Limitações conhecidas
+## Limitações conhecidas
 
 - **Apenas conteúdo público.** Não há suporte a login, cookies, CAPTCHA ou qualquer forma de contornar bloqueios.
 - **Depende do Instagram.** O acesso anônimo usa endpoints públicos que podem mudar ou ser limitados a qualquer momento; nesses casos é preciso uma nova versão do app.
@@ -131,7 +131,7 @@ Pixora.exe --diagnose "https://www.instagram.com/p/<código>/"
 
 ---
 
-## 💻 Desenvolvimento
+## Desenvolvimento
 
 **Requisitos:** Windows 10/11 e Python 3.10+ (validado com 3.12).
 
@@ -205,7 +205,7 @@ src/pixora/
 
 A versão aparece em `pyproject.toml`, `src/pixora/__init__.py`, `build.ps1`, `scripts/version_info.txt` e neste README; atualize todos ao lançar. Depois de `X.Y.9` vem `X.(Y+1).0`.
 
-## 📝 Novidades
+## Novidades
 
 **1.1.1**
 - Corrigido: quando o Instagram limitava as consultas, o app mostrava "Publicação indisponível" por engano. Agora mostra **Muitas solicitações** e orienta a aguardar.
@@ -215,6 +215,6 @@ A versão aparece em `pyproject.toml`, `src/pixora/__init__.py`, `build.ps1`, `s
 - Escolha do formato das imagens (JPG ou PNG), lembrada entre sessões.
 - Links `/reel/`, `/reels/` e `/tv/` agora são aceitos.
 
-## 📄 Licença
+## Licença
 
 Distribuído sob a [licença MIT](LICENSE). O Pixora não tem nenhuma relação com o Instagram ou a Meta.

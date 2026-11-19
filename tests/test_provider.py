@@ -9,7 +9,9 @@ from pixora.core.errors import (
     RateLimitedError, UnsupportedContentError,
 )
 from pixora.core.models import PostKind
-from pixora.providers.instaloader_provider import _RateLimitHit, parse_post_node, translate_exception
+from pixora.providers.instaloader_provider import (
+    InstaloaderProvider, _RateLimitHit, check_graphql_errors, parse_post_node, translate_exception,
+)
 
 CDN = "https://scontent.cdninstagram.com/v/"
 
@@ -144,3 +146,37 @@ def test_translate_follows_cause_chain():
             raise ilx.ConnectionException("wrapped") from inner
     except ilx.ConnectionException as outer:
         assert isinstance(translate_exception(outer), NetworkError)
+
+
+RATE_LIMIT_RESP = {"errors": [{"message": "Rate limit exceeded", "severity": "CRITICAL", "code": 1675004}],
+                   "extensions": {"is_final": True}}
+
+
+@pytest.mark.parametrize("resp", [
+    RATE_LIMIT_RESP,
+    {"errors": [{"message": "Rate limit exceeded", "code": 1}]},
+    {"errors": [{"message": "other", "code": 1675004}]},
+])
+def test_graphql_rate_limit_in_body_is_detected(resp):
+    with pytest.raises(_RateLimitHit):
+        check_graphql_errors(resp)
+
+
+@pytest.mark.parametrize("resp", [
+    {"data": {"xdt_api__v1__media__shortcode__web_info": {"items": []}}},
+    {"errors": [{"message": "Something else", "code": 42}]},
+    {"errors": None}, None, "texto",
+])
+def test_graphql_other_responses_pass_through(resp):
+    check_graphql_errors(resp)
+
+
+def test_rate_limit_in_graphql_body_becomes_rate_limited_error(monkeypatch):
+    """Instagram responde HTTP 200 com erro de limite; antes virava "Publicação indisponível"."""
+    provider = InstaloaderProvider()
+    ctx = provider._get_loader().context
+    monkeypatch.setattr("pixora.providers.instaloader_provider.MIN_QUERY_INTERVAL", 0)
+    # Substitui a requisição real que o verificador instalado envolve.
+    monkeypatch.setattr(type(ctx), "get_json", lambda self, *a, **k: RATE_LIMIT_RESP)
+    with pytest.raises(RateLimitedError):
+        provider.fetch_post("DfJ2K5zCCnu")

@@ -1,130 +1,220 @@
+<div align="center">
+
+<img src="src/pixora/assets/pixora.png" alt="Pixora" width="96" height="96">
+
 # Pixora
 
-Aplicativo desktop gratuito para Windows que baixa **imagens e vídeos** de publicações, Reels e carrosséis **públicos** do Instagram a partir do link da publicação.
+**Baixe imagens e vídeos de publicações públicas do Instagram, direto no seu computador.**
 
-- Cole o link → **Analisar** → pré-visualize as mídias na ordem original → selecione → escolha **PNG** ou **JPG** para as imagens → **Baixar** (vídeos sempre em **MP4**).
-- Tema escuro (padrão) e claro, interface responsiva, nada de travamentos durante rede ou downloads.
-- Funciona 100% localmente: sem servidor, sem conta, sem senha, sem telemetria.
+[![Versão](https://img.shields.io/badge/versão-1.1.1-7c5cff)](https://github.com/angelotho/Pixora/releases)
+[![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)](#-download-e-instalação)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](#-desenvolvimento)
+[![Qt](https://img.shields.io/badge/UI-PySide6-41CD52?logo=qt&logoColor=white)](https://doc.qt.io/qtforpython-6/)
+[![Licença](https://img.shields.io/badge/licença-MIT-green)](LICENSE)
 
-> Use o Pixora apenas com conteúdo próprio ou cujo download e uso você esteja autorizado a fazer. Respeite os direitos autorais dos criadores.
+[Download](#-download-e-instalação) · [Como usar](#-como-usar) · [Solução de problemas](#-solução-de-problemas) · [Desenvolvimento](#-desenvolvimento)
+
+</div>
 
 ---
 
-## Funcionalidades
+O Pixora é um aplicativo desktop gratuito para Windows. Cole o link de uma publicação, Reel ou carrossel **público** do Instagram, veja as mídias na ordem original, escolha quais quer e salve na maior resolução disponível.
 
-| Área | O que faz |
+Tudo roda **100% no seu computador**: sem servidor, sem conta, sem senha e sem telemetria.
+
+> [!IMPORTANT]
+> Use o Pixora apenas com conteúdo próprio ou que você tenha autorização para baixar e usar. Respeite os direitos autorais dos criadores.
+
+## ✨ Destaques
+
+- **Imagens, vídeos e carrosséis**: publicações únicas, Reels e carrosséis mistos, sempre na ordem original.
+- **Pré-visualização antes de baixar**: grade com miniaturas, posição e resolução de cada item; selecione só o que quiser.
+- **Maior resolução pública**: o arquivo salvo é a maior versão que o Instagram entrega, sem recortes.
+- **Formato à sua escolha**: imagens em **JPG** (padrão) ou **PNG**; vídeos em **MP4**, sem recodificação.
+- **Nunca sobrescreve**: arquivos repetidos ganham uma cópia numerada ou são pulados, como você preferir.
+- **Histórico local**: veja o que já baixou, abra a pasta ou a publicação de novo.
+- **Interface fluida**: tema escuro e claro, atalhos de teclado, nada trava durante análises ou downloads.
+- **Privado por padrão**: nenhum login, nenhum cookie do navegador, nenhum dado enviado a terceiros.
+
+## 📥 Download e instalação
+
+1. Baixe o arquivo `Pixora-1.1.1-windows-x64.zip` na página de [**Releases**](https://github.com/angelotho/Pixora/releases).
+2. Extraia o ZIP para uma pasta de sua preferência.
+3. Execute `Pixora\Pixora.exe`. Não é preciso instalar Python nem nada mais.
+
+> [!NOTE]
+> **Aviso do Windows SmartScreen:** o executável não tem assinatura digital (certificados de assinatura são pagos). Na primeira execução o Windows pode mostrar *"O Windows protegeu o computador"*. Se você confia na origem do arquivo, clique em **Mais informações → Executar assim mesmo**.
+
+**Para atualizar**, feche o Pixora e substitua a pasta `Pixora` inteira pela nova versão. Suas configurações e seu histórico ficam em outra pasta e são preservados.
+
+## 🚀 Como usar
+
+1. No Instagram, abra a publicação e copie o link (**⋯ → Copiar link**).
+2. No Pixora, cole o link e clique em **Analisar**.
+3. Marque as mídias que deseja (ou use **Selecionar todas**).
+4. Escolha o formato das imagens (JPG ou PNG) e a pasta de destino no rodapé.
+5. Clique em **Baixar**. Ao terminar, use **Abrir pasta** para ver os arquivos.
+
+Os arquivos são salvos como `instagram_<CÓDIGO>_01.jpg`, `instagram_<CÓDIGO>_02.mp4`, e assim por diante.
+
+### Links aceitos
+
+| Tipo | Exemplo |
 |---|---|
-| Links | Aceita `instagram.com/p/<código>`, `/reel/<código>`, `/tv/<código>`, com ou sem `www`/`https`, `m.instagram.com`, `instagr.am`, `/<usuário>/p/<código>`, parâmetros de compartilhamento (`?igsh=…`, `?utm_source=…`, `?img_index=…`). Recusa outros domínios, IPs, portas, credenciais embutidas e esquemas não-HTTP, com mensagens específicas para Stories, perfis etc. |
-| Análise | Identifica imagem única, vídeo ou carrossel (misto de imagens e vídeos); vídeos aparecem com o selo ▶ VÍDEO. Vídeos sem arquivo público são ignorados com aviso. Indicador de carregamento com opção de cancelar. |
-| Pré-visualização | Grade responsiva na ordem original, miniaturas leves baixadas em paralelo (separadas do arquivo final), proporções preservadas, posição e resolução em cada cartão. |
-| Seleção | Clique (ou Espaço) para marcar/desmarcar; *Selecionar todas*, *Limpar seleção*, contador "N imagens · M selecionadas". |
-| Downloads | Maior resolução que o Instagram disponibiliza publicamente; nomes `instagram_<CÓDIGO>_01.jpg`; **formato escolhido no rodapé** (JPG — padrão — ou PNG, lembrado entre sessões): a imagem só é convertida quando o original está em outro formato (PNG sem perdas; JPG com qualidade 95 e transparência sobre fundo branco); vídeos são salvos em **MP4** sem recodificação; nunca sobrescreve (cópia numerada ou pular, configurável); barra de progresso; cancelamento; resumo de salvos/pulados/falhas; botão **Abrir pasta**. |
-| Histórico | SQLite local com data, publicação, autor, pasta e arquivos. Rebaixar o mesmo post na mesma pasta atualiza o registro (sem duplicatas). Abrir pasta, abrir publicação, remover item, limpar tudo. Nenhuma imagem é armazenada no histórico. |
-| Configurações | Pasta padrão, perguntar pasta a cada download, abrir pasta ao concluir, política de conflito, tema, colar automaticamente links copiados, ativar/desativar histórico. |
-| Robustez | Erros traduzidos em mensagens claras; nenhum erro encerra o app; logs locais rotativos sem tokens/assinaturas; limites de tempo em toda requisição; uma operação por vez. |
+| Publicação | `https://www.instagram.com/p/ABC123xyz/` |
+| Reel | `https://www.instagram.com/reel/ABC123xyz/` |
+| IGTV | `https://www.instagram.com/tv/ABC123xyz/` |
+| Com usuário | `https://www.instagram.com/usuario/p/ABC123xyz/` |
+| Variações | sem `https`/`www`, `m.instagram.com`, `instagr.am` e parâmetros de compartilhamento (`?igsh=…`, `?img_index=…`) |
 
-Atalhos: `Enter` analisa · `Esc` cancela · `Ctrl+L` foca o link · `Ctrl+D` baixa · `Ctrl+Shift+A` seleciona todas · `Ctrl+H` histórico · `Ctrl+,` configurações.
+Stories, lives, perfis e páginas de explorar não são suportados, e o app avisa quando você cola um desses links.
 
----
+### Atalhos de teclado
 
-## Instalação e uso (usuário final)
+| Atalho | Ação |
+|---|---|
+| `Enter` | Analisar o link |
+| `Esc` | Cancelar |
+| `Ctrl+L` | Focar o campo de link |
+| `Ctrl+D` | Baixar selecionadas |
+| `Ctrl+Shift+A` | Selecionar todas |
+| `Ctrl+H` | Histórico |
+| `Ctrl+,` | Configurações |
 
-1. Baixe `Pixora-1.1.0-windows-x64.zip`, extraia e execute `Pixora\Pixora.exe`. Não é preciso instalar Python.
-2. **Aviso do Windows SmartScreen:** o executável **não possui assinatura digital** (certificados de assinatura são pagos). Na primeira execução o Windows pode mostrar "O Windows protegeu o computador". Clique em **Mais informações → Executar assim mesmo** se confiar na origem do arquivo. Esse aviso é esperado e não foi ocultado.
+### Configurações
 
-Onde ficam os dados (fora da pasta do programa):
+Pasta padrão de downloads, perguntar a pasta a cada download, abrir a pasta ao concluir, o que fazer com arquivos repetidos, tema claro/escuro, colar automaticamente links copiados e ativar/desativar o histórico.
+
+## 🔒 Privacidade e segurança
+
+- **Sem login**: o Pixora acessa apenas conteúdo público, de forma anônima. Não pede senha nem lê cookies do navegador.
+- **Sem servidor e sem telemetria**: nenhuma informação sai do seu computador além das requisições ao próprio Instagram.
+- **Acesso restrito**: o cliente HTTP só baixa arquivos do CDN oficial do Instagram (lista de domínios permitidos), com redirecionamentos validados e limite de tempo em toda requisição.
+- **Links validados**: outros domínios, IPs, portas, credenciais embutidas e esquemas que não sejam HTTP(S) são recusados.
+- **Logs limpos**: os logs locais não registram tokens nem assinaturas de URL.
+
+### Onde ficam seus dados
 
 | Item | Local |
 |---|---|
 | Configurações | `%APPDATA%\Pixora\settings.json` |
 | Histórico | `%APPDATA%\Pixora\history.db` |
 | Logs | `%LOCALAPPDATA%\Pixora\logs\pixora.log` |
-| Downloads (padrão) | `%USERPROFILE%\Pictures\Pixora` |
+| Downloads (padrão) | pasta **Imagens** do Windows `\Pixora` |
 
-Diagnóstico (para suporte): `Pixora.exe --diagnose "https://www.instagram.com/p/<código>/"` testa validação → Instagram → prévia → download e grava o resultado em `%LOCALAPPDATA%\Pixora\logs\diagnostico.txt` (código de saída 0 = OK).
+O histórico guarda apenas data, link, autor, pasta e nomes de arquivos. Nenhuma imagem fica armazenada nele.
+
+## 🛠 Solução de problemas
+
+| Mensagem | O que significa | O que fazer |
+|---|---|---|
+| **Muitas solicitações** | O Instagram está limitando temporariamente as consultas do seu IP. | Aguarde alguns minutos (às vezes algumas horas) e tente de novo. |
+| **Publicação indisponível** | A publicação foi removida, é de uma conta privada ou o link está errado. Para acesso anônimo, o Instagram responde igual nesses casos. | Confira o link e se a publicação abre numa janela anônima do navegador. |
+| **Acesso restrito** | A publicação exige login (conta privada, restrição de idade ou região). | O Pixora não faz login nem contorna restrições, por decisão de projeto. |
+| **Serviço incompatível** | O Instagram mudou o formato das respostas. | Verifique se há uma nova versão do Pixora. |
+| **O link expirou** | Os links das mídias são temporários. | Analise a publicação novamente e baixe. |
+| **Falha de conexão** | Sem internet ou o Instagram não respondeu a tempo. | Verifique sua conexão e tente de novo. |
+
+**Diagnóstico para suporte.** Execute o comando abaixo: ele testa validação → Instagram → prévia → download e grava o resultado em `%LOCALAPPDATA%\Pixora\logs\diagnostico.txt` (código de saída `0` = tudo certo).
+
+```powershell
+Pixora.exe --diagnose "https://www.instagram.com/p/<código>/"
+```
+
+## ⚠️ Limitações conhecidas
+
+- **Apenas conteúdo público.** Não há suporte a login, cookies, CAPTCHA ou qualquer forma de contornar bloqueios.
+- **Depende do Instagram.** O acesso anônimo usa endpoints públicos que podem mudar ou ser limitados a qualquer momento; nesses casos é preciso uma nova versão do app.
+- **Limite de requisições.** Muitas análises seguidas a partir do mesmo IP podem ser bloqueadas por um tempo. O app avisa e não fica tentando de novo sozinho.
+- **Resolução.** O máximo é o que o Instagram entrega publicamente (normalmente 1080 px de largura). Não é possível obter o arquivo original enviado pelo autor.
+- **Vídeos sem arquivo público** dentro de um carrossel são ignorados, com aviso.
 
 ---
 
-## Desenvolvimento
+## 💻 Desenvolvimento
 
-Requisitos: Windows 10/11, Python 3.10+ (validado com 3.12.10).
+**Requisitos:** Windows 10/11 e Python 3.10+ (validado com 3.12).
 
 ```powershell
-# 1. Ambiente e dependências
+# Ambiente e dependências
 py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 
-# 2. Executar o aplicativo
+# Executar
 .\.venv\Scripts\python.exe run_pixora.py
 
-# 3. Testes automatizados (sem rede e sem credenciais)
+# Testes (sem rede e sem credenciais)
 .\.venv\Scripts\python.exe -m pytest
 
-# 4. Testes de integração REAIS com o Instagram (opcionais)
+# Testes de integração reais com o Instagram (opcionais)
 $env:PIXORA_NETWORK_TESTS = "1"; .\.venv\Scripts\python.exe -m pytest -m network
+```
 
-# 5. Gerar o executável (roda os testes, gera ícone, empacota, testa a inicialização e cria o ZIP)
-.\build.ps1             # dist\Pixora\Pixora.exe + dist\Pixora-1.1.0-windows-x64.zip
+Também é possível instalar como pacote com `pip install -e .[dev]` e executar `pixora` ou `python -m pixora`.
+
+### Gerar o executável
+
+```powershell
+.\build.ps1             # dist\Pixora\Pixora.exe + dist\Pixora-1.1.1-windows-x64.zip
 .\build.ps1 -OneFile    # dist\Pixora.exe único (inicia mais devagar; mais alertas de antivírus)
 ```
 
-Também é possível instalar como pacote: `pip install -e .[dev]` e executar `pixora` ou `python -m pixora`.
+O script roda os testes, gera o ícone, empacota com PyInstaller, testa a inicialização do executável e cria o ZIP. Feche o Pixora antes de rodar o build, senão os arquivos de `dist\Pixora` ficam bloqueados.
 
 ### Arquitetura
 
 ```
 src/pixora/
 ├── app.py                     # ponto de entrada, logs, tratamento global de exceções, --diagnose
-├── core/                      # lógica de negócio — sem Qt, 100% testável
-│   ├── url_validator.py       # validação/normalização segura dos links
+├── core/                      # lógica de negócio, sem Qt e 100% testável
+│   ├── url_validator.py       # validação e normalização segura dos links
 │   ├── models.py              # PostInfo, ImageItem, DownloadReport…
 │   ├── errors.py              # erros com mensagens amigáveis
-│   ├── http.py                # cliente HTTP restrito ao CDN do Instagram (allowlist, timeouts, redirecionamentos validados)
+│   ├── http.py                # cliente HTTP restrito ao CDN do Instagram
 │   ├── downloader.py          # downloads atômicos (.part → final), progresso, cancelamento
+│   ├── converter.py           # conversão JPG/PNG apenas quando necessária
 │   ├── filenames.py           # nomes, detecção de formato, conflitos
 │   ├── selection.py           # regras de seleção
 │   ├── service.py             # fachada usada pela interface
-│   └── logging_setup.py       # logs rotativos com remoção de tokens
+│   └── logging_setup.py       # logs rotativos sem tokens
 ├── providers/                 # integração com o Instagram (substituível)
 │   ├── base.py                # protocolo PostProvider
 │   └── instaloader_provider.py
-├── storage/                   # persistência local
-│   ├── paths.py · settings.py (JSON) · history.py (SQLite)
-└── ui/                        # PySide6
-    ├── main_window.py · theme.py · icons.py · workers.py
-    ├── widgets/ (common.py, gallery.py)
-    └── dialogs/ (settings_dialog.py, history_dialog.py)
+├── storage/                   # configurações (JSON) e histórico (SQLite)
+└── ui/                        # PySide6: janela, tema, workers, widgets e diálogos
 ```
 
-- **Threads:** rede, decodificação de miniaturas e downloads rodam em `QThreadPool`. Resultados voltam à interface apenas por sinais entregues na thread principal (`ui/workers.py`). Análises antigas/canceladas são descartadas por um contador de geração.
-- **Trocar a biblioteca do Instagram:** implemente `PostProvider.fetch_post(shortcode) -> PostInfo` (levantando apenas `PixoraError`) e passe a nova classe para `PixoraService` em `app.py`. Nada mais muda.
+- **Threads:** rede, miniaturas e downloads rodam em `QThreadPool`. Os resultados voltam à interface só por sinais (`ui/workers.py`), e análises canceladas ou antigas são descartadas.
+- **Trocar a integração com o Instagram:** implemente `PostProvider.fetch_post(shortcode) -> PostInfo` (levantando apenas `PixoraError`) e passe a nova classe para `PixoraService` em `app.py`.
+- **Erros nunca encerram o app:** toda falha vira uma mensagem amigável definida em `core/errors.py`.
 
-### Decisões técnicas
+<details>
+<summary><strong>Decisões técnicas</strong></summary>
 
 | Escolha | Motivo |
 |---|---|
-| **Python + PySide6** (`PySide6-Essentials`) | Qt é o toolkit desktop mais maduro em Python: widgets nativos de alto DPI, estilização completa, modelo de threads robusto, licença LGPL. O pacote *Essentials* evita ~300 MB de WebEngine/PDF que o app não usa. |
-| **PyInstaller** (modo pasta) | Gratuito, maduro, bom suporte a PySide6. O modo pasta inicia mais rápido e gera menos falsos positivos de antivírus que o `--onefile` (também disponível). UPX desativado pelo mesmo motivo. |
-| **Instaloader 4.16, anônimo** | Validado em 07/11/2026: obtém posts públicos (imagem única, carrossel, vídeo, inexistente) **sem login**. Configurado com uma única tentativa por consulta, intervalo mínimo de 2,5 s entre consultas e falha imediata ao detectar limite de requisições (em vez de esperar minutos, o que pareceria travamento). |
-| Alternativa avaliada: **oEmbed oficial da Meta** | Exige app registrado na Meta + token e não retorna as imagens individuais do carrossel — inviável sem servidor/credenciais. |
-| JSON + SQLite | Locais, gratuitos e já incluídos no Python. |
+| **Python + PySide6** (`PySide6-Essentials`) | Toolkit desktop maduro: widgets nativos com alto DPI, estilização completa, bom modelo de threads e licença LGPL. O pacote *Essentials* evita ~300 MB de WebEngine/PDF que o app não usa. |
+| **PyInstaller** (modo pasta) | Gratuito e com bom suporte a PySide6. O modo pasta inicia mais rápido e gera menos falsos positivos de antivírus que o `--onefile`. UPX desativado pelo mesmo motivo. |
+| **Instaloader, anônimo** | Obtém publicações públicas sem login. Configurado com uma tentativa por consulta, intervalo mínimo de 2,5 s entre consultas e falha imediata ao detectar limite de requisições, em vez de esperar minutos e parecer travado. |
+| Alternativa descartada: **oEmbed oficial da Meta** | Exige app registrado e token, e não retorna as imagens individuais do carrossel. Inviável sem servidor e credenciais. |
+| **JSON + SQLite** | Locais, gratuitos e já incluídos no Python. |
 
----
+</details>
 
-## Limitações conhecidas
+### Versionamento
 
-- **Apenas conteúdo público.** Contas privadas, posts restritos por idade/região ou que exijam login mostram "Acesso restrito". O Pixora **não** faz login, não usa cookies do navegador, não resolve CAPTCHA e não contorna bloqueios — por decisão de projeto.
-- **Dependência do Instagram.** O acesso anônimo usa endpoints públicos que o Instagram pode alterar ou limitar a qualquer momento. Se isso ocorrer, o app mostra "Serviço incompatível" ou "Muitas solicitações"; a correção típica é atualizar o Instaloader (`requirements.txt`) e gerar nova versão.
-- **Limite de requisições.** Muitas análises seguidas a partir do mesmo IP podem ser limitadas temporariamente pelo Instagram. O app avisa e pede para aguardar; não há novas tentativas automáticas.
-- **Resolução.** O arquivo salvo é a maior versão que o Instagram entrega publicamente (normalmente 1080 px de largura; às vezes maior). Não há como obter o original enviado pelo autor.
-- **Links das imagens expiram.** As URLs do CDN são assinadas e temporárias; se um download falhar com "link expirou", basta analisar a publicação novamente.
-- **Posts inexistentes e privados** retornam a mesma resposta do Instagram para acesso anônimo; por isso a mensagem cobre ambos os casos ("removida, privada ou com acesso restrito").
-- Vídeos, Reels, Stories, lives e perfis inteiros estão fora do escopo.
+A versão aparece em `pyproject.toml`, `src/pixora/__init__.py`, `build.ps1`, `scripts/version_info.txt` e neste README; atualize todos ao lançar. Depois de `X.Y.9` vem `X.(Y+1).0`.
 
-## Validação realizada (07/11/2026)
+## 📝 Novidades
 
-- 131 testes automatizados offline (links, normalização, nomes, formatos, seleção, downloads com HTTP simulado — parciais, interrompidos, truncados, cancelados, redirecionamentos, hosts bloqueados —, tradução de erros, configurações, histórico, logs e fluxos da interface em modo offscreen).
-- 4 testes reais contra o Instagram (`-m network`): imagem única com download, carrossel, vídeo recusado, post inexistente.
-- Fluxo completo na interface com o Instagram real: link inválido, Reel, vídeo, inexistente, carrossel, seleção parcial, download, conflito de nomes e histórico.
-- Executável gerado com PyInstaller: teste de inicialização e `--diagnose` (Instagram → prévia → download) aprovados no `.exe` empacotado.
-- **Não validado:** posts de contas privadas e restritos por idade (exigiriam contas de teste); comportamento sob bloqueio prolongado do Instagram (não é possível provocar com segurança). A tradução desses casos é coberta por testes com exceções simuladas.
+**1.1.1**
+- Corrigido: quando o Instagram limitava as consultas, o app mostrava "Publicação indisponível" por engano. Agora mostra **Muitas solicitações** e orienta a aguardar.
+
+**1.1.0**
+- Suporte a vídeos (publicações, Reels e carrosséis mistos), salvos em MP4 sem recodificação.
+- Escolha do formato das imagens (JPG ou PNG), lembrada entre sessões.
+- Links `/reel/`, `/reels/` e `/tv/` agora são aceitos.
+
+## 📄 Licença
+
+Distribuído sob a [licença MIT](LICENSE). O Pixora não tem nenhuma relação com o Instagram ou a Meta.

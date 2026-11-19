@@ -62,6 +62,41 @@ def _make_rate_controller(ctx: Any) -> Any:
     return FailFastRateController(ctx)
 
 
+# Código que o Instagram devolve (com HTTP 200) quando limita consultas GraphQL.
+GRAPHQL_RATE_LIMIT_CODE = 1675004
+
+
+def check_graphql_errors(resp: Any) -> None:
+    """Levanta ``_RateLimitHit`` se a resposta GraphQL indicar limite de requisições.
+
+    O Instagram pode responder HTTP 200 com ``{"errors": [...]}`` em vez de 429. O
+    Instaloader ignora esse campo e falha depois com ``BadResponseException``, que seria
+    traduzido como "publicação indisponível". Outros erros apenas vão para o log.
+    """
+    if not isinstance(resp, dict):
+        return
+    errors = [e for e in resp.get("errors") or [] if isinstance(e, dict)]
+    if not errors:
+        return
+    summary = "; ".join(f"{e.get('code')}: {str(e.get('message'))[:120]}" for e in errors)
+    for err in errors:
+        message = str(err.get("message") or "").lower()
+        if err.get("code") == GRAPHQL_RATE_LIMIT_CODE or "rate limit" in message:
+            raise _RateLimitHit(f"GraphQL: {summary}")
+    log.warning("Resposta GraphQL com erros: %s", summary)
+
+
+def _install_graphql_error_check(ctx: Any) -> None:
+    original = ctx.doc_id_graphql_query
+
+    def checked(*args: Any, **kwargs: Any) -> Any:
+        resp = original(*args, **kwargs)
+        check_graphql_errors(resp)
+        return resp
+
+    ctx.doc_id_graphql_query = checked
+
+
 class InstaloaderProvider:
     name = "Instaloader"
 
@@ -88,6 +123,7 @@ class InstaloaderProvider:
                 request_timeout=REQUEST_TIMEOUT,
                 rate_controller=_make_rate_controller,
             )
+            _install_graphql_error_check(self._loader.context)
         return self._loader
 
     def fetch_post(self, shortcode: str) -> PostInfo:
